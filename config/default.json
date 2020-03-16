@@ -1,0 +1,4 @@
+{
+  "mongoURI":
+    "mongodb+srv://ccdb-user:bruceface1890@count-app-db-gyiw5.mongodb.net/test?retryWrites=true&w=majority"
+}
