@@ -1,9 +1,7 @@
-// TODO: create three resources users, bunkers, rankings
-
 const express = require('express');
 const router = express.Router();
 
-// Load User model
+// Load User control
 const UserCtrl = require('../../controllers/user-ctrl');
 
 // @route GET api/users/test
@@ -22,7 +20,7 @@ router.get('/', UserCtrl.getAllUsers);
 router.get('/:id', UserCtrl.getUser);
 
 // @route POST api/users
-// @description add/save user
+// @description Create a user
 // @access Public
 router.post('/', UserCtrl.createUser);
 
