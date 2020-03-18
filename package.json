@@ -1,7 +1,7 @@
 {
   "name": "corona-count",
   "version": "1.0.0",
-  "description": "",
+  "description": "App that allows groups of people to rank and rate each other on whatever they like",
   "main": "index.js",
   "scripts": {
     "start": "node app.js",
