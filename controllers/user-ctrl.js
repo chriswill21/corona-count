@@ -19,7 +19,7 @@ getUser = (req, res) => {
         return res.status(400).json({ success: false, error: "Must provide User ID" })
     }
 
-    User.findById(req.params.id, function(err, user) {
+    User.findOne({user_id: req.params.id}, function(err, user) {
         if (err) {
             return res.status(404).json({ success: false, error: err })
         }
@@ -41,7 +41,7 @@ createUser = (req, res) => {
     user
         .save()
         .then(() => {
-            return res.status(201).json({ success: true, id: user._id, message: 'User added successfully' })
+            return res.status(201).json({ success: true, id: user.user_id, message: 'User added successfully' })
         })
         .catch( error => {
             return res.status(400).json({ success: false, error: error, message: 'User not added' })
@@ -53,7 +53,7 @@ deleteUser = (req, res) => {
         return res.status(400).json({success: false, error: 'Must provide a user id'})
     }
 
-    User.findOneAndDelete({_id: req.params.id}, (err, user) => {
+    User.findOneAndDelete({user_id: req.params.id}, (err, user) => {
         if (err) {
             return res.status(400).json({ success: false, error: err })
         }
@@ -76,7 +76,7 @@ updateUserName = (req, res) => {
         return res.status(400).json({success: false, error: 'Must provide a new user name'})
     }
 
-    User.findByIdAndUpdate(req.params.id, {name: req.params.name}, (err, user) => {
+    User.findOneAndUpdate({user_id: req.params.id}, {name: req.params.name}, (err, user) => {
         if (err) {
             return res.status(400).json({success: false, error: err})
         }
