@@ -6,8 +6,7 @@ const BunkerSchema = new mongoose.Schema({
         required: true
     },
     users: [{
-        type: mongoose.Schema.ObjectId,
-        ref: 'User',
+        type: String,
         required: true
     }],
     measures: [{
@@ -17,8 +16,7 @@ const BunkerSchema = new mongoose.Schema({
         },
         ratings: [{
             user: {
-                type: mongoose.Schema.ObjectId,
-                ref: 'User',
+                type: String,
                 required: true
             },
             score: {
