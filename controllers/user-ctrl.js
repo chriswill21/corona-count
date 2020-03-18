@@ -48,6 +48,7 @@ createUser = (req, res) => {
         })
 };
 
+// TODO: delete user from all bunkers and bunker measures they are in
 deleteUser = (req, res) => {
     if (!req.params.id) {
         return res.status(400).json({success: false, error: 'Must provide a user id'})

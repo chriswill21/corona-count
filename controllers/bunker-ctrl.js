@@ -95,14 +95,16 @@ addUserToBunker = (req, res) => {
             ratings.forEach(rating => {
                 default_score += rating.score;
             });
-            default_score /= ratings.length;
+            if (ratings.length) {
+                default_score /= ratings.length;
+            }
             const rating = {user: req.params.user_id, score: default_score};
             measure.ratings.push(rating);
         });
         bunker
             .save()
             .then(() => {
-                User.findByIdAndUpdate(req.params.user_id, {$push: {bunkers: req.params.bunker_id}}, (e, user) => {
+                User.findOneAndUpdate({user_id: req.params.user_id}, {$push: {bunkers: req.params.bunker_id}}, (e, user) => {
                     if (e) {
                         return res.status(400).json({success: false, error: e})
                     }
@@ -112,7 +114,7 @@ addUserToBunker = (req, res) => {
                     return res.status(200).json({success: true, message: 'Successfully added User to Bunker'})
                 })
             }).catch(error => {
-                return res.status(400).jston({success: false, error: error})
+                return res.status(400).json({success: false, error: error})
         });
     });
 };
@@ -141,8 +143,7 @@ deleteUserFromBunker = (req, res) => {
         bunker.measures.forEach(measure => {
             for (let i = 0; i<measure.ratings.length; i++) {
                 const rating = measure.ratings[i];
-                if (rating.user.equals(req.params.user_id)) {
-                    console.log("here");
+                if (rating.user === req.params.user_id) {
                     measure.ratings.splice(i, i+1);
                     break;
                 }
@@ -151,7 +152,7 @@ deleteUserFromBunker = (req, res) => {
         bunker
             .save()
             .then(() => {
-                User.findByIdAndUpdate(req.params.user_id, {$pull: {bunkers: req.params.bunker_id}}, (e, user) => {
+                User.findOneAndUpdate({user_id: req.params.user_id}, {$pull: {bunkers: req.params.bunker_id}}, (e, user) => {
                     if (e) {
                         return res.status(400).json({success: false, error: e})
                     }
@@ -191,7 +192,6 @@ addMeasureToBunker = (req, res) => {
         }
         const ratings = [];
         users.users.forEach(user_id => {
-            console.log("here");
             const rating = {user: user_id, score: req.params.default_score};
             ratings.push(rating);
         });
@@ -201,7 +201,6 @@ addMeasureToBunker = (req, res) => {
                 return res.status(400).json({success: false, error: err})
             }
             if (!bunker) {
-                console.log('asd;flkasdjf');
             }
             return res.status(200).json({success: true, message: 'Measure added to bunker successfully'})
         });
@@ -228,9 +227,12 @@ deleteMeasureFromBunker = (req, res) => {
         if (!bunker) {
             return res.status(404).json({success: false, error: 'Bunker or measure not found with that ID'})
         }
-        console.log(bunker);
         return res.status(200).json({success: true, message: 'Successfully deleted measure from bunker'})
     })
+};
+
+rateUser = (req, res) => {
+    // if (!req.params.bunker_id || !req.params.measure_id || !req.params.user_id
 };
 
 
