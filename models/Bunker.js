@@ -1,6 +1,4 @@
 const mongoose = require('mongoose');
-const User = require('./User');
-const Measure = require('./Measure');
 
 const BunkerSchema = new mongoose.Schema({
     name: {
@@ -13,9 +11,21 @@ const BunkerSchema = new mongoose.Schema({
         required: true
     }],
     measures: [{
-        type: mongoose.Schema.ObjectId,
-        ref: 'Measure',
-        required: true
+        name: {
+            type: String,
+            required: true
+        },
+        ratings: [{
+            user: {
+                type: mongoose.Schema.ObjectId,
+                ref: 'User',
+                required: true
+            },
+            score: {
+                type: Number,
+                required: true
+            }
+        }]
     }]
 });
 

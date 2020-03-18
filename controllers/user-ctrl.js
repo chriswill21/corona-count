@@ -10,7 +10,7 @@ getAllUsers = (req, res) => {
         if (err) {
             return res.status(404).json({ success: false, error: err })
         }
-        return res.status(200).json({ success: true, data: users })
+        return res.status(200).json({ success: true, users: users })
     })
 };
 
@@ -26,7 +26,7 @@ getUser = (req, res) => {
         if (!user) {
             return res.status(404).json({success: false, error: 'No User found with that ID'})
         }
-        return res.status(200).json({ success: true, data: user})
+        return res.status(200).json({ success: true, user: user})
     })
 };
 
@@ -65,7 +65,7 @@ deleteUser = (req, res) => {
             return res.status(404).json({ success: false, error: 'User not found with that ID' })
         }
 
-        return res.status(200).json({ success: true, data: user })
+        return res.status(200).json({ success: true, user: user })
     }).catch(error => {
         return res.status(400).json({ success: false, error: error })
     })
