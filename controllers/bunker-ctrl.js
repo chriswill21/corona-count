@@ -91,12 +91,12 @@ addUserToBunker = (req, res) => {
 
         bunker.measures.forEach(measure => {
             const ratings = measure.ratings;
-            let default_score = 0.0;
+            let default_score = 0;
             ratings.forEach(rating => {
                 default_score += rating.score;
             });
             if (ratings.length) {
-                default_score /= ratings.length;
+                Math.round(default_score /= ratings.length);
             }
             const rating = {user: req.params.user_id, score: default_score};
             measure.ratings.push(rating);
@@ -231,8 +231,36 @@ deleteMeasureFromBunker = (req, res) => {
     })
 };
 
-rateUser = (req, res) => {
-    // if (!req.params.bunker_id || !req.params.measure_id || !req.params.user_id
+updateScore = (req, res) => {
+    if (!req.params.bunker_id || !req.params.measure_id || !req.params.user_id || !req.params.score_delta) {
+        return res.status(400).json({success: false, error: 'Missing parameters'})
+    }
+
+    Bunker.findById(req.params.bunker_id, (err, bunker) => {
+        if (err) {
+            return res.status(400).json({success: false, error: err})
+        }
+        if (!bunker) {
+            return res.status(404).json({success: false, error: 'Bunker not found with that ID'})
+        }
+        bunker.measures.forEach(measure => {
+            if (measure._id.equals(req.params.measure_id)) {
+                measure.ratings.forEach(rating => {
+                    if (rating.user === req.params.user_id) {
+                        rating.score += parseInt(req.params.score_delta);
+                    }
+                })
+            }
+        });
+        bunker
+            .save()
+            .then(() => {
+                return res.status(200).json({success: true, message: 'Successfully updated user\' score'})
+            })
+            .catch(e => {
+                return res.status(400).json({success: false, error: e})
+            });
+    });
 };
 
 
@@ -245,5 +273,6 @@ module.exports = {
     addUserToBunker,
     deleteUserFromBunker,
     addMeasureToBunker,
-    deleteMeasureFromBunker
+    deleteMeasureFromBunker,
+    updateScore
 };

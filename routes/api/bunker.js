@@ -49,4 +49,9 @@ router.post('/measure/:bunker_id/:measure_name/:default_score', BunkerCtrl.addMe
 // @access Public
 router.delete('/measure/:bunker_id/:measure_id', BunkerCtrl.deleteMeasureFromBunker);
 
+// @route POST api/bunkers/update_score/:bunker_id/:measure_id/:user_id/:score_delta
+// @description Updates a user's score for a measure
+// @access Public
+router.post('/update_score/:bunker_id/:measure_id/:user_id/:score_delta', BunkerCtrl.updateScore);
+
 module.exports = router;
