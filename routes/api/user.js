@@ -29,4 +29,9 @@ router.post('/', UserCtrl.createUser);
 // @access Public
 router.delete('/:id', UserCtrl.deleteUser);
 
+// @route POST api/users/:id/:name
+// @description Updates a user by id to name
+// @access Public
+router.post('/:id/:name', UserCtrl.updateUserName);
+
 module.exports = router;

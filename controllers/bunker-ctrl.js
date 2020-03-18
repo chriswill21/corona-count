@@ -102,7 +102,15 @@ addUserToBunker = (req, res) => {
         bunker
             .save()
             .then(() => {
-                return res.status(200).json({success: true, message: 'Successfully added User to Bunker'})
+                User.findByIdAndUpdate(req.params.user_id, {$push: {bunkers: req.params.bunker_id}}, (e, user) => {
+                    if (e) {
+                        return res.status(400).json({success: false, error: e})
+                    }
+                    if (!user) {
+                        return res.status(400).json({success: false, error: 'User with that ID not found'})
+                    }
+                    return res.status(200).json({success: true, message: 'Successfully added User to Bunker'})
+                })
             }).catch(error => {
                 return res.status(400).jston({success: false, error: error})
         });
@@ -143,7 +151,15 @@ deleteUserFromBunker = (req, res) => {
         bunker
             .save()
             .then(() => {
-                return res.status(200).json({success: true, message: 'Successfully deleted User from Bunker'})
+                User.findByIdAndUpdate(req.params.user_id, {$pull: {bunkers: req.params.bunker_id}}, (e, user) => {
+                    if (e) {
+                        return res.status(400).json({success: false, error: e})
+                    }
+                    if (!user) {
+                        return res.status(400).json({success: false, error: 'User with that ID not found'})
+                    }
+                    return res.status(200).json({success: true, message: 'Successfully deleted User from Bunker'})
+                });
             }).catch(error => {
                 return res.status(400).jston({success: false, error: error})
         });
