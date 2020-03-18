@@ -29,4 +29,24 @@ router.post('/', BunkerCtrl.createBunker);
 // @access Public
 router.delete('/:id', BunkerCtrl.deleteBunker);
 
+// @route POST api/bunkers/:bunker_id/:user_id
+// @description Adds a user with user_id to the bunker with bunker_id
+// @access Public
+router.post('/user/:bunker_id/:user_id', BunkerCtrl.addUserToBunker);
+
+// @route DELETE api/bunkers/:bunker_id/:user_id
+// @description Deletes a user with user_id from the bunker with bunker_id
+// @access Public
+router.delete('/user/:bunker_id/:user_id', BunkerCtrl.deleteUserFromBunker);
+
+// @route POST api/bunkers/:bunker_id/:measure_name/:default_score
+// @description Adds a measure with measure_name and default_score to the bunker with bunker_id
+// @access Public
+router.post('/measure/:bunker_id/:measure_name/:default_score', BunkerCtrl.addMeasureToBunker);
+
+// @route DELETE api/bunkers/:bunker_id/:measure_id
+// @description Deletes a measure with measure_id from the bunker with bunker_id
+// @access Public
+router.delete('/measure/:bunker_id/:measure_id', BunkerCtrl.deleteMeasureFromBunker);
+
 module.exports = router;

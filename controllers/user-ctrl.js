@@ -10,7 +10,7 @@ getAllUsers = (req, res) => {
         if (err) {
             return res.status(404).json({ success: false, error: err })
         }
-        return res.status(200).json({ success: true, data: users })
+        return res.status(200).json({ success: true, users: users })
     })
 };
 
@@ -26,7 +26,7 @@ getUser = (req, res) => {
         if (!user) {
             return res.status(404).json({success: false, error: 'No User found with that ID'})
         }
-        return res.status(200).json({ success: true, data: user})
+        return res.status(200).json({ success: true, user: user})
     })
 };
 
@@ -50,10 +50,7 @@ createUser = (req, res) => {
 
 deleteUser = (req, res) => {
     if (!req.params.id) {
-        return res.status(400).json({
-            success: false,
-            error: 'Must provide a user id',
-        })
+        return res.status(400).json({success: false, error: 'Must provide a user id'})
     }
 
     User.findOneAndDelete({_id: req.params.id}, (err, user) => {
@@ -65,9 +62,30 @@ deleteUser = (req, res) => {
             return res.status(404).json({ success: false, error: 'User not found with that ID' })
         }
 
-        return res.status(200).json({ success: true, data: user })
+        return res.status(200).json({ success: true, user: user })
     }).catch(error => {
         return res.status(400).json({ success: false, error: error })
+    })
+};
+
+updateUserName = (req, res) => {
+    if (!req.params.id) {
+        return res.status(400).json({success: false, error: 'Must provide a user id'})
+    }
+    if (!req.params.name) {
+        return res.status(400).json({success: false, error: 'Must provide a new user name'})
+    }
+
+    User.findByIdAndUpdate(req.params.id, {name: req.params.name}, (err, user) => {
+        if (err) {
+            return res.status(400).json({success: false, error: err})
+        }
+        if (!user) {
+            return res.status(404).json({success: false, error: 'User not found with that ID'})
+        }
+        return res.status(200).json({success: true, old_user: user})
+    }).catch(error => {
+        return res.status(400).json({success: false, error: error})
     })
 };
 
@@ -76,5 +94,6 @@ module.exports = {
     getAllUsers,
     getUser,
     createUser,
-    deleteUser
+    deleteUser,
+    updateUserName
 };
