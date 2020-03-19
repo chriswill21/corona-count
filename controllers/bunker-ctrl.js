@@ -51,7 +51,7 @@ createBunker = (req, res) => {
                     }
                 })
             });
-            return res.status(201).json({success: true, id: bunker._id, message: 'Bunker added successfully'})
+            return res.status(201).json({success: true, bunker: bunker, message: 'Bunker added successfully'})
         })
         .catch(error => {
             return res.status(400).json({success: false, error: error, message: 'Bunker not added'})
@@ -121,7 +121,7 @@ addUserToBunker = (req, res) => {
                     if (!user) {
                         return res.status(400).json({success: false, error: 'User with that ID not found'})
                     }
-                    return res.status(200).json({success: true, message: 'Successfully added User to Bunker'})
+                    return res.status(200).json({success: true, bunker: bunker, message: 'Successfully added User to Bunker'})
                 })
             }).catch(error => {
                 return res.status(400).json({success: false, error: error})
