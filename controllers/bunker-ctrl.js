@@ -212,7 +212,7 @@ addMeasureToBunker = (req, res) => {
             }
             if (!bunker) {
             }
-            return res.status(200).json({success: true, message: 'Measure added to bunker successfully'})
+            return res.status(200).json({success: true, measure: measure_body, message: 'Measure added to bunker successfully'})
         });
     });
 };
