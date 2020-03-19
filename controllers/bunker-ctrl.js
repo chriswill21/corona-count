@@ -273,6 +273,30 @@ updateScore = (req, res) => {
     });
 };
 
+getMeasureFromBunker = (req, res) => {
+    if (!req.params.bunker_id) {
+        return res.status(400).json({success: false, error: 'Must provide a Bunker ID'})
+    }
+    if (!req.params.measure_name) {
+        return res.status(400).json({success: false, error: 'Must provide a Bunker ID'})
+    }
+
+    Bunker.findById(req.params.bunker_id, (err, bunker) => {
+        if (err) {
+            return res.status(400).json({success: false, error: err})
+        }
+        if (!bunker) {
+            return res.status(404).json({success: false, error: 'Bunker not found with that ID'})
+        }
+        bunker.measures.forEach(measure => {
+            if (measure.name === req.params.measure_name) {
+                return res.status(200).json({success: true, measure: measure})
+            }
+        });
+        return res.status(404).json({success: false, error: 'No measure found with that name'})
+    });
+};
+
 
 module.exports = {
     test,
@@ -284,5 +308,6 @@ module.exports = {
     deleteUserFromBunker,
     addMeasureToBunker,
     deleteMeasureFromBunker,
-    updateScore
+    updateScore,
+    getMeasureFromBunker
 };
