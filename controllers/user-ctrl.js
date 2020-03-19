@@ -1,5 +1,6 @@
 // Load User model
 const User = require('../models/User');
+const Bunker = require('../models/Bunker');
 
 test = (req, res) => {
     return res.send('user route testing!');
@@ -26,7 +27,19 @@ getUser = (req, res) => {
         if (!user) {
             return res.status(404).json({success: false, error: 'No User found with that ID'})
         }
-        return res.status(200).json({ success: true, user: user})
+        const conditions = {
+            _id: {$in: user.bunkers}
+        };
+
+        Bunker.find(conditions, (e, bunkers) => {
+            if (e) {
+                return res.status(400).json({success: false, error: e})
+            }
+            if (!bunkers) {
+                return res.status(404).json({success: false, error: 'No bunkers found with those IDs'})
+            }
+            return res.status(200).json({ success: true, user: user, bunkers: bunkers})
+        });
     })
 };
 

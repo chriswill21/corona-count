@@ -49,9 +49,9 @@ createBunker = (req, res) => {
                     if (!user) {
                         return res.status(404).json({success: false, error: 'User not found with that ID'})
                     }
-                    return res.status(201).json({success: true, id: bunker._id, message: 'Bunker added successfully'})
                 })
             });
+            return res.status(201).json({success: true, id: bunker._id, message: 'Bunker added successfully'})
         })
         .catch(error => {
             return res.status(400).json({success: false, error: error, message: 'Bunker not added'})
