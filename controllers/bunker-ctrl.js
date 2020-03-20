@@ -288,12 +288,16 @@ getMeasureFromBunker = (req, res) => {
         if (!bunker) {
             return res.status(404).json({success: false, error: 'Bunker not found with that ID'})
         }
+        let success = false;
         bunker.measures.forEach(measure => {
             if (measure.name === req.params.measure_name) {
-                return res.status(200).json({success: true, measure: measure})
+                success = true;
+                return res.status(200).json({success: true, measure: measure});
             }
         });
-        return res.status(404).json({success: false, error: 'No measure found with that name'})
+        if (!success) {
+            return res.status(404).json({success: false, error: 'Measure not found with that name'})
+        }
     });
 };
 

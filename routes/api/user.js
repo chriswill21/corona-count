@@ -34,4 +34,9 @@ router.delete('/:id', UserCtrl.deleteUser);
 // @access Public
 router.post('/:id/:name', UserCtrl.updateUserName);
 
+// @route GET api/users/in_bunker/:user_id/:bunker_id
+// @description Returns whether the given user is in the given bunker
+// @access Public
+router.get('/in_bunker/:user_id/:bunker_id', UserCtrl.isUserInBunker);
+
 module.exports = router;
