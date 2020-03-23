@@ -1,5 +1,6 @@
 // Load Bunker model
 const Bunker = require('../models/Bunker');
+const Measure = require('../models/Measure');
 
 test = (req, res) => {
     return res.send('bunker route testing!');
@@ -8,7 +9,7 @@ test = (req, res) => {
 getAllBunkers = (req, res) => {
     Bunker.find({}, function (err, bunkers) {
         if (err) {
-            return res.status(404).json({success: false, error: err})
+            return res.status(400).json({success: false, error: err})
         }
         return res.status(200).json({success: true, bunkers: bunkers})
     })
@@ -91,42 +92,56 @@ addUserToBunker = (req, res) => {
         users: {$nin: req.params.user_id}
     };
 
-    Bunker.findOneAndUpdate(conditions, {$push: {users: req.params.user_id}}, (err, bunker) => {
-        if (err) {
-            return res.status(400).json({success: false, error: err})
-        }
-        if (!bunker) {
-            return res.status(404).json({success: false, error: 'Bunker not found with that ID, or user already exists in this bunker'})
-        }
-
-        bunker.measures.forEach(measure => {
-            const ratings = measure.ratings;
-            let default_score = 0;
-            ratings.forEach(rating => {
-                default_score += rating.score;
-            });
-            if (ratings.length) {
-                Math.round(default_score /= ratings.length);
+    Bunker.findOneAndUpdate(conditions, {$push: {users: req.params.user_id}})
+        .exec((err, bunker) => {
+            if (err) {
+                return res.status(400).json({success: false, error: err})
             }
-            const rating = {user: req.params.user_id, score: default_score};
-            measure.ratings.push(rating);
-        });
-        bunker
-            .save()
-            .then(() => {
-                User.findOneAndUpdate({user_id: req.params.user_id}, {$push: {bunkers: req.params.bunker_id}}, (e, user) => {
-                    if (e) {
-                        return res.status(400).json({success: false, error: e})
-                    }
-                    if (!user) {
-                        return res.status(400).json({success: false, error: 'User with that ID not found'})
-                    }
-                    return res.status(200).json({success: true, bunker: bunker, message: 'Successfully added User to Bunker'})
+            if (!bunker) {
+                return res.status(404).json({
+                    success: false,
+                    error: 'Bunker not found with that ID, or user already exists in this bunker'
                 })
-            }).catch(error => {
+            }
+
+            bunker.measures.forEach(measure_id => {
+                Measure.findById(measure_id, (er, measure) => {
+                    if (er) {
+                        return res.status(400).json({success: false, error: er})
+                    }
+                    const ratings = measure.ratings;
+                    let default_score = 0;
+                    ratings.forEach(rating => {
+                        default_score += rating.score;
+                    });
+                    if (ratings.length) {
+                        Math.round(default_score /= ratings.length);
+                    }
+                    const rating = {user: req.params.user_id, score: default_score};
+                    measure.ratings.push(rating);
+                    measure.save();
+                })
+            });
+            bunker
+                .save()
+                .then(() => {
+                    User.findOneAndUpdate({user_id: req.params.user_id}, {$push: {bunkers: req.params.bunker_id}}, (e, user) => {
+                        if (e) {
+                            return res.status(400).json({success: false, error: e})
+                        }
+                        if (!user) {
+                            return res.status(400).json({success: false, error: 'User with that ID not found'})
+                        }
+                        return res.status(200).json({
+                            success: true,
+                            bunker: bunker,
+                            message: 'Successfully added User to Bunker'
+                        })
+                    })
+                }).catch(error => {
                 return res.status(400).json({success: false, error: error})
+            });
         });
-    });
 };
 
 deleteUserFromBunker = (req, res) => {
@@ -142,39 +157,46 @@ deleteUserFromBunker = (req, res) => {
         users: {$in: req.params.user_id}
     };
 
-    Bunker.findOneAndUpdate(conditions, {$pull: {users: req.params.user_id}}, (err, bunker) => {
-        if (err) {
-            return res.status(400).json({success: false, error: err})
-        }
-        if (!bunker) {
-            return res.status(404).json({success: false, error: 'Bunker or user not found with that ID'})
-        }
-
-        bunker.measures.forEach(measure => {
-            for (let i = 0; i<measure.ratings.length; i++) {
-                const rating = measure.ratings[i];
-                if (rating.user === req.params.user_id) {
-                    measure.ratings.splice(i, i+1);
-                    break;
-                }
+    Bunker.findOneAndUpdate(conditions, {$pull: {users: req.params.user_id}})
+        .exec((err, bunker) => {
+            if (err) {
+                return res.status(400).json({success: false, error: err})
             }
-        });
-        bunker
-            .save()
-            .then(() => {
-                User.findOneAndUpdate({user_id: req.params.user_id}, {$pull: {bunkers: req.params.bunker_id}}, (e, user) => {
-                    if (e) {
-                        return res.status(400).json({success: false, error: e})
+            if (!bunker) {
+                return res.status(404).json({success: false, error: 'Bunker or user not found with that ID'})
+            }
+
+            bunker.measures.forEach(measure_id => {
+                Measure.findById(measure_id, (er, measure) => {
+                    if (er) {
+                        return res.status(400).json({success: false, error: er})
                     }
-                    if (!user) {
-                        return res.status(400).json({success: false, error: 'User with that ID not found'})
+                    for (let i = 0; i < measure.ratings.length; i++) {
+                        const rating = measure.ratings[i];
+                        if (rating.user === req.params.user_id) {
+                            measure.ratings.splice(i, i + 1);
+                            break;
+                        }
                     }
-                    return res.status(200).json({success: true, message: 'Successfully deleted User from Bunker'})
-                });
-            }).catch(error => {
+                    measure.save();
+                })
+            });
+            bunker
+                .save()
+                .then(() => {
+                    User.findOneAndUpdate({user_id: req.params.user_id}, {$pull: {bunkers: req.params.bunker_id}}, (e, user) => {
+                        if (e) {
+                            return res.status(400).json({success: false, error: e})
+                        }
+                        if (!user) {
+                            return res.status(400).json({success: false, error: 'User with that ID not found'})
+                        }
+                        return res.status(200).json({success: true, message: 'Successfully deleted User from Bunker'})
+                    });
+                }).catch(error => {
                 return res.status(400).jston({success: false, error: error})
+            });
         });
-    });
 };
 
 addMeasureToBunker = (req, res) => {
@@ -188,33 +210,54 @@ addMeasureToBunker = (req, res) => {
         return res.status(400).json({success: false, error: 'Must provide a default score'})
     }
 
-    const conditions = {
-        _id: req.params.bunker_id,
-        'measures.name': {$ne: req.params.measure_name}
-    };
-
-    Bunker.findOne(conditions, 'users', (err, users) => {
-        if (err) {
-            return res.status(404).json({success: false, error: err})
-        }
-        if (!users) {
-            return res.status(404).json({success: false, error: 'Bunker with that ID not found, or measure name already exists in this bunker'})
-        }
-        const ratings = [];
-        users.users.forEach(user_id => {
-            const rating = {user: user_id, score: req.params.default_score};
-            ratings.push(rating);
-        });
-        const measure_body = {name: req.params.measure_name, ratings: ratings};
-        Bunker.findOneAndUpdate(conditions, {$push: {measures: measure_body}}, (err, bunker) => {
+    Bunker.findById(req.params.bunker_id)
+        .populate('measures')
+        .exec((err, bunker) => {
             if (err) {
-                return res.status(400).json({success: false, error: err})
+                return res.status(404).json({success: false, error: err})
             }
             if (!bunker) {
+                return res.status(404).json({
+                    success: false,
+                    error: 'Bunker with that ID not found'
+                })
             }
-            return res.status(200).json({success: true, measure: measure_body, message: 'Measure added to bunker successfully'})
+
+            let failed = false;
+            bunker.measures.forEach(measure => {
+                if (measure.name === req.params.measure_name) {
+                    failed = true;
+                    return res.status(400).json({
+                        success: false,
+                        error: 'Measure with that name already exists in bunker'
+                    })
+                }
+            });
+
+            if (!failed) {
+                const ratings = [];
+                bunker.users.forEach(user_id => {
+                    const rating = {user: user_id, score: req.params.default_score};
+                    ratings.push(rating);
+                });
+                const measure_body = {name: req.params.measure_name, ratings: ratings, history: []};
+                const new_measure = new Measure(measure_body);
+                new_measure
+                    .save()
+                    .then(() => {
+                        Bunker.findByIdAndUpdate(req.params.bunker_id, {$push: {measures: new_measure._id}}, (err, bunker) => {
+                            if (err) {
+                                return res.status(400).json({success: false, error: err})
+                            }
+                            return res.status(200).json({
+                                success: true,
+                                measure: measure_body,
+                                message: 'Measure added to bunker successfully'
+                            })
+                        });
+                    })
+            }
         });
-    });
 };
 
 deleteMeasureFromBunker = (req, res) => {
@@ -225,80 +268,23 @@ deleteMeasureFromBunker = (req, res) => {
         return res.status(400).json({success: false, error: 'Must provide a measure ID'})
     }
 
-    const conditions = {
-        _id: req.params.bunker_id,
-        'measures._id': {$eq: req.params.measure_id}
-    };
-
-    Bunker.findOneAndUpdate(conditions, {$pull: {measures: {_id: req.params.measure_id}}}, (err, bunker) => {
-        if (err) {
-            return res.status(400).json({success: false, error: err})
-        }
-        if (!bunker) {
-            return res.status(404).json({success: false, error: 'Bunker or measure not found with that ID'})
-        }
-        return res.status(200).json({success: true, message: 'Successfully deleted measure from bunker'})
-    })
-};
-
-updateScore = (req, res) => {
-    if (!req.params.bunker_id || !req.params.measure_id || !req.params.user_id || !req.params.score_delta) {
-        return res.status(400).json({success: false, error: 'Missing parameters'})
-    }
-
-    Bunker.findById(req.params.bunker_id, (err, bunker) => {
+    Bunker.findByIdAndUpdate(req.params.bunker_id, {$pull: {measures: req.params.measure_id}}, (err, bunker) => {
         if (err) {
             return res.status(400).json({success: false, error: err})
         }
         if (!bunker) {
             return res.status(404).json({success: false, error: 'Bunker not found with that ID'})
         }
-        bunker.measures.forEach(measure => {
-            if (measure._id.equals(req.params.measure_id)) {
-                measure.ratings.forEach(rating => {
-                    if (rating.user === req.params.user_id) {
-                        rating.score += parseInt(req.params.score_delta);
-                    }
-                })
-            }
-        });
-        bunker
-            .save()
-            .then(() => {
-                return res.status(200).json({success: true, message: 'Successfully updated user\' score'})
-            })
-            .catch(e => {
+        Measure.findByIdAndDelete(req.params.measure_id, (e, measure) => {
+            if (e) {
                 return res.status(400).json({success: false, error: e})
-            });
-    });
-};
-
-getMeasureFromBunker = (req, res) => {
-    if (!req.params.bunker_id) {
-        return res.status(400).json({success: false, error: 'Must provide a Bunker ID'})
-    }
-    if (!req.params.measure_name) {
-        return res.status(400).json({success: false, error: 'Must provide a Bunker ID'})
-    }
-
-    Bunker.findById(req.params.bunker_id, (err, bunker) => {
-        if (err) {
-            return res.status(400).json({success: false, error: err})
-        }
-        if (!bunker) {
-            return res.status(404).json({success: false, error: 'Bunker not found with that ID'})
-        }
-        let success = false;
-        bunker.measures.forEach(measure => {
-            if (measure.name === req.params.measure_name) {
-                success = true;
-                return res.status(200).json({success: true, measure: measure});
             }
+            if (!measure) {
+                return res.status(404).json({success: false, error: 'Measure not found with that ID'})
+            }
+            return res.status(200).json({success: true, message: 'Successfully deleted measure from bunker'})
         });
-        if (!success) {
-            return res.status(404).json({success: false, error: 'Measure not found with that name'})
-        }
-    });
+    })
 };
 
 
@@ -312,6 +298,4 @@ module.exports = {
     deleteUserFromBunker,
     addMeasureToBunker,
     deleteMeasureFromBunker,
-    updateScore,
-    getMeasureFromBunker
 };

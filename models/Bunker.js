@@ -10,20 +10,9 @@ const BunkerSchema = new mongoose.Schema({
         required: true
     }],
     measures: [{
-        name: {
-            type: String,
-            required: true
-        },
-        ratings: [{
-            user: {
-                type: String,
-                required: true
-            },
-            score: {
-                type: Number,
-                required: true
-            }
-        }]
+        type: mongoose.Schema.ObjectId,
+        required: true,
+        ref: 'Measure'
     }]
 });
 
