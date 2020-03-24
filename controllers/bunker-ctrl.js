@@ -287,6 +287,23 @@ deleteMeasureFromBunker = (req, res) => {
     })
 };
 
+getMeasuresForBunker = (req, res) => {
+    if (!req.params.bunker_id) {
+        return res.status(400).json({success: false, error: 'Must provide bunker ID'})
+    }
+    Bunker.findById(req.params.bunker_id, 'measures')
+        .populate('measures')
+        .exec((error, bunker) => {
+            if (error) {
+                return res.status(400).json({success: false, error: error})
+            }
+            if (!bunker) {
+                return res.status(404).json({success: false, error: 'Bunker not found with that ID'})
+            }
+            return res.status(200).json({success: true, measures: bunker.measures})
+        });
+};
+
 
 module.exports = {
     test,
@@ -298,4 +315,5 @@ module.exports = {
     deleteUserFromBunker,
     addMeasureToBunker,
     deleteMeasureFromBunker,
+    getMeasuresForBunker,
 };

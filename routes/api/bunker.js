@@ -49,4 +49,9 @@ router.post('/measure/:bunker_id/:measure_name/:default_score', BunkerCtrl.addMe
 // @access Public
 router.delete('/measure/:bunker_id/:measure_id', BunkerCtrl.deleteMeasureFromBunker);
 
+// @route GET api/bunkers/measures/:bunker_id
+// @description Gets all measure objects associated with a given bunker
+// @access Public
+router.get('/measures/:bunker_id', BunkerCtrl.getMeasuresForBunker);
+
 module.exports = router;
