@@ -320,15 +320,14 @@ getUsersInBunker = (req, res) => {
         const conditions = {
             user_id: {$in: bunker.users}
         };
-        User.find(conditions, {_id: 0, name: 1}, (err, users) => {
+        User.find(conditions, {_id: 0, name: 1, user_id: 1}, (err, users) => {
             if (err) {
                 return res.status(400).json({success: false, error: err})
             }
             if (!users) {
                 return res.status(404).json({success: false, error: 'User not found with that ID'})
             }
-            const users_list = users.map(user => user.name);
-            return res.status(200).json({success: true, user_names: users_list})
+            return res.status(200).json({success: true, users: users})
         });
 
     })
