@@ -306,11 +306,10 @@ getMeasuresForBunker = (req, res) => {
 };
 
 
-getUsersInBunker = async (req, res) => {
+getUsersInBunker = (req, res) => {
     if (!req.params.bunker_id) {
         return res.status(400).json({success: false, error: 'Must provide a bunker ID'})
     }
-    const names = [];
     Bunker.findById(req.params.bunker_id, 'users', (error, bunker) => {
         if (error) {
             return res.status(400).json({success: false, error: error})
@@ -318,26 +317,21 @@ getUsersInBunker = async (req, res) => {
         if (!bunker) {
             return res.status(404).json({success: false, error: 'Bunker not found with that ID'})
         }
-        bunker.users.forEach(user_id => {
-            User.findOne({user_id: user_id}, 'name')
-                .exec((err, user) => {
-                    if (err) {
-                        return res.status(400).json({success: false, error: err})
-                    }
-                    if (!user) {
-                        return res.status(404).json({success: false, error: 'User not found with that ID'})
-                    }
-                    console.log(user.name);
-                    names.push(user.name);
-                });
+        const conditions = {
+            user_id: {$in: bunker.users}
+        };
+        User.find(conditions, {_id: 0, name: 1}, (err, users) => {
+            if (err) {
+                return res.status(400).json({success: false, error: err})
+            }
+            if (!users) {
+                return res.status(404).json({success: false, error: 'User not found with that ID'})
+            }
+            const users_list = users.map(user => user.name);
+            return res.status(200).json({success: true, user_names: users_list})
         });
+
     })
-        .then(() => {
-            return res.status(200).json({success: true, user_names: names})
-        })
-        .catch(e => {
-            return res.status(400).json({success: false, error: e})
-        });
 };
 
 

@@ -19,10 +19,15 @@ router.get('/', MeasureCtrl.getAllMeasures);
 // @access Public
 router.get('/:id', MeasureCtrl.getMeasure);
 
-// @route POST api/measures/:measure_id/:user_id/:score_delta
+// @route POST api/measures/feed/:measure_id
+// @description Adds a new post to the beginning of a given measure's feed
+// @access Public
+router.post('/feed/:measure_id', MeasureCtrl.postToFeed);
+
+// @route POST api/measures/verify/:measure_id/:post_id
 // @description Updates a user's score for a measure
 // @access Public
-router.post('/:measure_id/:user_id/:score_delta', MeasureCtrl.updateScore);
+router.post('/verify/:measure_id/:post_id', MeasureCtrl.verifyPost);
 
 module.exports = router;
 
