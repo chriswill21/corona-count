@@ -54,4 +54,9 @@ router.delete('/measure/:bunker_id/:measure_id', BunkerCtrl.deleteMeasureFromBun
 // @access Public
 router.get('/measures/:bunker_id', BunkerCtrl.getMeasuresForBunker);
 
+// @route GET api/bunkers/users/:bunker_id
+// @description Gets all user names in a bunker
+// @access Public
+router.get('/users/:bunker_id', BunkerCtrl.getUsersInBunker);
+
 module.exports = router;
