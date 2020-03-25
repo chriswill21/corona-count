@@ -38,7 +38,10 @@ postToFeed = (req, res) => {
     if (!history_body) {
         return res.status(400).json({success: false, error: 'Must provide a post body'})
     }
-    if (!history_body.accuser_id || !history_body.victim_id || !history_body.delta || !history_body.comment) {
+    if (history_body.accuser_id === undefined ||
+        history_body.victim_id === undefined ||
+        history_body.delta === undefined ||
+        history_body.comment === undefined) {
         return res.status(400).json({success: false, error: 'Must provide all necessary body fields'})
     }
 
