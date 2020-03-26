@@ -1,7 +1,8 @@
 const express = require('express');
 const connectDB = require('./config/db');
 const bodyParser = require('body-parser');
-var cors = require('cors');
+const cors = require('cors');
+const io = require('socket.io').listen(4000).sockets;
 
 const app = express();
 
@@ -12,6 +13,12 @@ const measures = require('./routes/api/measure');
 
 // Connect Database
 connectDB();
+
+io.on('connection', function(socket){
+    console.log("Socket connected...");
+});
+
+app.io = io;
 
 // use cors and parser
 app.use(cors({ origin: true, credentials: true }));
