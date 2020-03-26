@@ -14,10 +14,15 @@ router.get('/test', MeasureCtrl.test);
 // @access Public
 router.get('/', MeasureCtrl.getAllMeasures);
 
-// @route GET api/measures/:id
+// @route GET api/measures/:measure_id
 // @description Get single measure by id
 // @access Public
-router.get('/:id', MeasureCtrl.getMeasure);
+router.get('/:measure_id', MeasureCtrl.getMeasure);
+
+// @route GET api/measures/feed/:measure_id
+// @description Get the feed from the measure
+// @access Public
+router.get('/feed/:measure_id', MeasureCtrl.getFeed);
 
 // @route POST api/measures/feed/:measure_id
 // @description Adds a new post to the beginning of a given measure's feed

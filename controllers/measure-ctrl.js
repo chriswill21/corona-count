@@ -14,11 +14,11 @@ getAllMeasures = (req, res) => {
 };
 
 getMeasure = (req, res) => {
-    if (!req.params.id) {
+    if (!req.params.measure_id) {
         return res.status(400).json({success: false, error: 'Must provide a measure ID'})
     }
 
-    Measure.findById(req.params.id, (err, measure) => {
+    Measure.findById(req.params.measure_id, (err, measure) => {
         if (err) {
             return res.status(400).json({success: false, error: err})
         }
@@ -127,11 +127,26 @@ verifyPost = (req, res) => {
     });
 };
 
+getFeed = (req, res) => {
+    if (!req.params.measure_id) {
+        return res.status(400).json({success: false, error: "Must provide a measure ID"})
+    }
+
+    Measure.findById(req.params.measure_id, (err, measure) => {
+        if (err) {
+            return res.status(400).json({success: false, error: err})
+        }
+        if (!measure) {
+            return res.status(404).json({success: false, error: 'Measure with that ID not found'})
+        }
+        return res.status(200).json({success: true, feed: measure.history})
+    })}
 
 module.exports = {
     test,
     getAllMeasures,
     getMeasure,
     postToFeed,
-    verifyPost
+    verifyPost,
+    getFeed
 };
