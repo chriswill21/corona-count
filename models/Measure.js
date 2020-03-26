@@ -15,7 +15,7 @@ const MeasureSchema = new mongoose.Schema({
             required: true
         }
     }],
-    history: [{
+    feed: [{
         accuser_id: {
             type: String,
             required: true

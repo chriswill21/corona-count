@@ -241,7 +241,7 @@ addMeasureToBunker = (req, res) => {
                     const rating = {user: user_id, score: req.params.default_score};
                     ratings.push(rating);
                 });
-                const measure_body = {name: req.params.measure_name, ratings: ratings, history: []};
+                const measure_body = {name: req.params.measure_name, ratings: ratings, feed: []};
                 const new_measure = new Measure(measure_body);
                 new_measure
                     .save()

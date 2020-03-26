@@ -30,18 +30,18 @@ getMeasure = (req, res) => {
 };
 
 postToFeed = (req, res) => {
-    const history_body = req.body;
+    const feed_body = req.body;
 
     if (!req.params.measure_id) {
         return res.status(400).json({success: false, error: 'Must provide a Measure ID'})
     }
-    if (!history_body) {
+    if (!feed_body) {
         return res.status(400).json({success: false, error: 'Must provide a post body'})
     }
-    if (history_body.accuser_id === undefined ||
-        history_body.victim_id === undefined ||
-        history_body.delta === undefined ||
-        history_body.comment === undefined) {
+    if (feed_body.accuser_id === undefined ||
+        feed_body.victim_id === undefined ||
+        feed_body.delta === undefined ||
+        feed_body.comment === undefined) {
         return res.status(400).json({success: false, error: 'Must provide all necessary body fields'})
     }
 
@@ -53,17 +53,17 @@ postToFeed = (req, res) => {
             return res.status(404).json({success: false, error: 'Measure with that ID not found'})
         }
         const new_post = {
-            accuser_id: history_body.accuser_id,
-            victim_id: history_body.victim_id,
-            delta: history_body.delta,
-            comment: history_body.comment,
+            accuser_id: feed_body.accuser_id,
+            victim_id: feed_body.victim_id,
+            delta: feed_body.delta,
+            comment: feed_body.comment,
             is_verified: false
         };
-        measure.history.unshift(new_post);
+        measure.feed.unshift(new_post);
         measure
             .save()
             .then(() => {
-                req.app.io.emit('new_post', measure.history);
+                req.app.io.emit('new_post', measure.feed);
                 return res.status(201).json({success: true, new_post: new_post, message: 'Successfully added new post'})
             })
             .catch(err => {
@@ -87,7 +87,7 @@ verifyPost = (req, res) => {
         let victim = null;
         let delta = null;
         let failed = false;
-        measure.history.forEach(post => {
+        measure.feed.forEach(post => {
             if (post._id.equals(req.params.post_id)) {
                 if (post.is_verified) {
                     failed = true;
@@ -118,7 +118,7 @@ verifyPost = (req, res) => {
             measure
                 .save()
                 .then(() => {
-                    req.app.io.emit('verified_post', measure.history);
+                    req.app.io.emit('verified_post', measure);
                     return res.status(200).json({success: true, message: 'Successfully updated user\'s score'})
                 })
                 .catch(e => {
@@ -140,7 +140,7 @@ getFeed = (req, res) => {
         if (!measure) {
             return res.status(404).json({success: false, error: 'Measure with that ID not found'})
         }
-        return res.status(200).json({success: true, feed: measure.history})
+        return res.status(200).json({success: true, feed: measure.feed})
     })
 }
 
