@@ -118,6 +118,7 @@ verifyPost = (req, res) => {
             measure
                 .save()
                 .then(() => {
+                    req.app.io.emit('verified_post', measure.history);
                     return res.status(200).json({success: true, message: 'Successfully updated user\'s score'})
                 })
                 .catch(e => {
@@ -140,7 +141,8 @@ getFeed = (req, res) => {
             return res.status(404).json({success: false, error: 'Measure with that ID not found'})
         }
         return res.status(200).json({success: true, feed: measure.history})
-    })}
+    })
+}
 
 module.exports = {
     test,
