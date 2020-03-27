@@ -9,6 +9,10 @@ const BunkerSchema = new mongoose.Schema({
         type: String,
         required: true
     }],
+    past_users: [{
+        type: String,
+        required: true
+    }],
     measures: [{
         type: mongoose.Schema.ObjectId,
         required: true,
