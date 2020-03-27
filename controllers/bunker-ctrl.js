@@ -290,24 +290,26 @@ getUsersInBunker = (req, res) => {
     if (!req.params.bunker_id) {
         return res.status(400).json({success: false, error: 'Must provide a bunker ID'})
     }
-    Bunker.findById(req.params.bunker_id, 'users', (error, bunker) => {
+    Bunker.findById(req.params.bunker_id, {users: 1, past_users: 1}, (error, bunker) => {
         if (error) {
             return res.status(400).json({success: false, error: error})
         }
         if (!bunker) {
             return res.status(404).json({success: false, error: 'Bunker not found with that ID'})
         }
-        const conditions = {
-            user_id: {$in: bunker.users}
-        };
-        User.find(conditions, {_id: 0, name: 1, user_id: 1}, (err, users) => {
+        User.find({user_id: {$in: bunker.users}}, {_id: 0, name: 1, user_id: 1}, (err, users) => {
             if (err) {
                 return res.status(400).json({success: false, error: err})
             }
             if (!users) {
                 return res.status(404).json({success: false, error: 'User not found with that ID'})
             }
-            return res.status(200).json({success: true, users: users})
+            User.find({user_id: {$in: bunker.past_users}}, {_id: 0, name: 1, user_id: 1}, (e, past_users) => {
+                if (e) {
+                    return res.status(400).json({success: false, error: e})
+                }
+                return res.status(200).json({success: true, users: users, past_users: past_users})
+            });
         });
 
     })
