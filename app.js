@@ -2,9 +2,9 @@ const express = require('express');
 const connectDB = require('./config/db');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const io = require('socket.io').listen(4000).sockets;
 
 const app = express();
+const io = require('socket.io').listen(app).sockets;
 
 // routes
 const users = require('./routes/api/user');
