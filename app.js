@@ -4,7 +4,8 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 
 const app = express();
-const io = require('socket.io').listen(app).sockets;
+const server = app.listen();
+const io = require('socket.io').listen(server).sockets;
 
 // routes
 const users = require('./routes/api/user');
