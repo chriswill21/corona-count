@@ -63,7 +63,7 @@ postToFeed = (req, res) => {
         measure
             .save()
             .then(() => {
-                req.app.io.emit('new_post', measure.feed);
+                req.app.io.emit(req.params.measure_id, measure.feed);
                 return res.status(201).json({success: true, new_post: new_post, message: 'Successfully added new post'})
             })
             .catch(err => {
