@@ -13,8 +13,8 @@ const measures = require('./routes/api/measure');
 const port = process.env.PORT || 8082;
 const app = express();
 
-app.listen(port, () => console.log(`Server running on port ${port}`));
-const io = socketIO(app);
+const server = app.listen(port, () => console.log(`Server running on port ${port}`));
+const io = socketIO(server);
 io.on('connection', function(socket){
     console.log("Socket connected...");
 });
