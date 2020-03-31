@@ -106,7 +106,6 @@ verifyPost = (req, res) => {
 
             let found_user = false;
             measure.ratings.forEach(rating => {
-                console.log(rating.user);
                 if (rating.user === victim) {
                     found_user = true;
                     rating.score += delta;
