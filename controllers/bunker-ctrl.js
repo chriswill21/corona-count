@@ -129,7 +129,8 @@ addUserToBunker = (req, res) => {
                                     default_score += rating.score;
                                 });
                                 if (ratings.length) {
-                                    Math.round(default_score /= ratings.length);
+                                    default_score /= ratings.length;
+                                    default_score = Math.round(default_score);
                                 }
                                 const rating = {user: req.params.user_id, score: default_score};
                                 measure.ratings.push(rating);
